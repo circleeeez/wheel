@@ -105,34 +105,21 @@
     position:relative;
     width:500px;
     height:500px;
+    margin-top:24px;
     margin-bottom:8px;
-  }
-
-  .straw{
-    position:absolute;
-    top:-52px;
-    left:50%;
-    transform:translateX(-50%) rotate(-8deg);
-    width:20px;
-    height:76px;
-    background: repeating-linear-gradient(180deg, var(--strawberry) 0 14px, #fff 14px 28px);
-    border-radius:9px;
-    box-shadow: 0 2px 4px rgba(59,42,34,0.2);
-    z-index:3;
   }
 
   .pointer{
     position:absolute;
-    top:-10px;
+    top:-34px;
     left:50%;
     transform:translateX(-50%);
-    width:0; height:0;
-    border-left:22px solid transparent;
-    border-right:22px solid transparent;
-    border-top:34px solid var(--ink);
+    width:42px;
+    height:50px;
     z-index:2;
-    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.15));
+    filter: drop-shadow(0 3px 3px rgba(0,0,0,0.18));
   }
+  .pointer svg{ display:block; width:100%; height:100%; }
 
   #wheel{
     width:100%;
@@ -144,13 +131,12 @@
   }
 
   @media (max-width: 800px){
-    .cup{ width:380px; height:380px; }
+    .cup{ width:380px; height:380px; margin-top:20px; }
   }
 
   @media (max-width: 480px){
-    .cup{ width:280px; height:280px; }
-    .straw{ top:-32px; width:13px; height:48px; }
-    .pointer{ border-left-width:14px; border-right-width:14px; border-top-width:22px; }
+    .cup{ width:280px; height:280px; margin-top:16px; }
+    .pointer{ width:30px; height:36px; top:-24px; }
     .hub{ width:50px; height:50px; font-size:20px; }
   }
 
@@ -395,9 +381,24 @@
     font-family:'Baloo 2', sans-serif;
     font-size:15px;
     font-weight:700;
-    margin:0 0 12px;
+    margin:0;
     color:var(--ink-soft);
   }
+  .history-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:12px;
+  }
+  .clear-history{
+    background:transparent;
+    color:var(--ink-soft);
+    font-size:12px;
+    padding:4px 10px;
+    border-radius:999px;
+    border:1px solid var(--line);
+  }
+  .clear-history:hover{ background:rgba(227,154,160,0.15); color:var(--strawberry); border-color:var(--strawberry); }
   .history-list{
     display:flex;
     flex-direction:column;
@@ -443,7 +444,7 @@
   <header>
     <div class="eyebrow">今日签到</div>
     <h1>今天喝什么<span>奶茶</span>?</h1>
-    <p>加入你的心水品牌,转一转交给运气决定</p>
+    <p>点击"开始转动"让转盘转起来,再次点击即可停下 · 停在哪格就喝哪家</p>
   </header>
 
   <div class="layout">
@@ -455,8 +456,16 @@
         <button class="edit-me" id="editMeBtn" type="button">改名</button>
       </div>
       <div class="cup">
-        <div class="straw"></div>
-        <div class="pointer"></div>
+        <div class="pointer">
+          <svg viewBox="0 0 44 54" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22 2C10.95 2 2 10.95 2 22c0 15.5 20 30 20 30s20-14.5 20-30C42 10.95 33.05 2 22 2z" fill="var(--strawberry)" stroke="var(--ink)" stroke-width="2.2"/>
+            <circle cx="17" cy="19" r="2.6" fill="var(--ink)"/>
+            <circle cx="27" cy="19" r="2.6" fill="var(--ink)"/>
+            <ellipse cx="13.5" cy="25" rx="3" ry="2" fill="#C2687A" opacity="0.55"/>
+            <ellipse cx="30.5" cy="25" rx="3" ry="2" fill="#C2687A" opacity="0.55"/>
+            <path d="M17 25.5 Q22 30 27 25.5" stroke="var(--ink)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
         <canvas id="wheel" width="500" height="500"></canvas>
         <div class="hub">🧋</div>
       </div>
@@ -467,14 +476,17 @@
       </div>
 
       <div class="history">
-        <h3>大家的转动记录</h3>
+        <div class="history-head">
+          <h3>大家的转动记录</h3>
+          <button class="clear-history" id="clearHistoryBtn" type="button">清空记录</button>
+        </div>
         <div class="history-list" id="historyList"></div>
       </div>
     </div>
 
     <div class="panel">
       <h2>奶茶清单</h2>
-      <p class="sub">添加想喝的品牌,越多选择越好玩 · 大家共同编辑</p>
+      <p class="sub">添加或者删除想喝的品牌</p>
 
       <div class="share-row" id="shareRow" style="display:none;">
         <input id="shareLink" type="text" readonly />
@@ -493,12 +505,12 @@
 
   </div>
 
-  <footer>点击"开始转动"让转盘转起来,再次点击即可停下 · 停在哪格就喝哪家</footer>
+  <footer>好困好困好困</footer>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, get, set, onValue, push, query, limitToLast, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, get, set, remove, onValue, push, query, limitToLast, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAj35fRxGKyaRRoT6ynFoeg4_tzJwnYKVA",
@@ -516,7 +528,7 @@ const itemsRef = ref(db, 'milkTeaWheel/items');
 const historyRef = ref(db, 'milkTeaWheel/history');
 const userCounterRef = ref(db, 'milkTeaWheel/userCounter');
 
-const palette = ['#C2789A','#6FA8C4','#E0A64E','#7FA65C','#D4784A','#9B7FC7','#4FB3A0','#D9637A'];
+const palette = ['#D46A8C','#5FA8D3','#F0B429','#6FB076','#E0824A','#A084CA','#3FBFAA','#E0577A'];
 const userPalette = ['#B8814F','#8FAE6B','#A78BC9','#E39AA0','#7FB0C4','#E3B94E','#D98E63','#B497D6'];
 const defaultItems = ['蜜雪冰城','喜茶','奈雪的茶','霸王茶姬','coco都可','茶百道'];
 let items = [...defaultItems];
@@ -679,6 +691,20 @@ function listenHistory(){
   });
 }
 
+document.getElementById('clearHistoryBtn').onclick = async ()=>{
+  if(!sharingReady){
+    alert('共享暂不可用,记录暂时保存在本机,刷新后会重置。');
+    return;
+  }
+  const ok = window.confirm('确定要清空转动记录吗?这会清空大家看到的记录,无法恢复。');
+  if(!ok) return;
+  try{
+    await remove(historyRef);
+  } catch(e){
+    alert('清空失败,请稍后再试。');
+  }
+};
+
 const canvas = document.getElementById('wheel');
 const ctx = canvas.getContext('2d');
 let size = 500, cx = size/2, cy = size/2, r = size/2 - 4;
@@ -777,6 +803,34 @@ function draw(){
   ctx.strokeStyle = 'rgba(59,42,34,0.12)';
   ctx.lineWidth = 1.5;
   ctx.stroke();
+
+  // 柔光高光,增加立体光泽感
+  const shine = ctx.createRadialGradient(cx - r*0.35, cy - r*0.4, r*0.05, cx, cy, r*1.05);
+  shine.addColorStop(0, 'rgba(255,255,255,0.28)');
+  shine.addColorStop(0.45, 'rgba(255,255,255,0.06)');
+  shine.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.beginPath();
+  ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.fillStyle = shine;
+  ctx.fill();
+
+  // 外沿一圈装饰小灯泡,增加游乐场转盘的喜庆感
+  const bulbR = Math.max(2.5, Math.min(6, r*0.02));
+  const bulbCount = n * 2;
+  for(let i=0;i<bulbCount;i++){
+    const angle = (Math.PI*2/bulbCount)*i;
+    const bx = cx + Math.cos(angle)*(r-bulbR*2.2);
+    const by = cy + Math.sin(angle)*(r-bulbR*2.2);
+    ctx.beginPath();
+    ctx.arc(bx,by,bulbR,0,Math.PI*2);
+    ctx.fillStyle = '#FFFDF9';
+    ctx.globalAlpha = 0.85;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = 'rgba(59,42,34,0.15)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
 }
 
 function renderList(){
