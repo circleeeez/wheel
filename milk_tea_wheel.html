@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>今天喝什么奶茶</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#F7EFE1;
+    --cream-2:#FBF5EA;
+    --ink:#3B2A22;
+    --ink-soft:#6B5646;
+    --taro:#A78BC9;
+    --matcha:#8FAE6B;
+    --brownsugar:#B8814F;
+    --strawberry:#E39AA0;
+    --honey:#E3B94E;
+    --milktea:#CDA97D;
+    --line: rgba(59,42,34,0.14);
+    --card:#FFFDF9;
+    --shadow: 0 10px 30px rgba(59,42,34,0.10);
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 8% 12%, rgba(184,129,79,0.10) 0 40px, transparent 41px),
+      radial-gradient(circle at 92% 20%, rgba(143,174,107,0.12) 0 30px, transparent 31px),
+      radial-gradient(circle at 15% 85%, rgba(227,154,160,0.12) 0 26px, transparent 27px),
+      radial-gradient(circle at 85% 88%, rgba(167,139,201,0.12) 0 34px, transparent 35px),
+      var(--cream);
+    font-family:'Nunito Sans', sans-serif;
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+    padding:48px 20px 80px;
+  }
+
+  .page{
+    width:100%;
+    max-width:980px;
+  }
+
+  header{
+    text-align:center;
+    margin-bottom:40px;
+  }
+
+  .eyebrow{
+    font-size:14px;
+    letter-spacing:0.14em;
+    color:var(--brownsugar);
+    font-weight:700;
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+
+  h1{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:clamp(32px, 5vw, 52px);
+    margin:0 0 12px;
+    color:var(--ink);
+  }
+
+  h1 span{
+    color:var(--brownsugar);
+    position:relative;
+  }
+
+  header p{
+    font-size:16px;
+    color:var(--ink-soft);
+    margin:0;
+  }
+
+  .layout{
+    display:grid;
+    grid-template-columns: 380px 1fr;
+    gap:36px;
+    align-items:start;
+  }
+
+  @media (max-width: 800px){
+    .layout{ grid-template-columns: 1fr; }
+  }
+
+  .wheel-card{
+    background:var(--card);
+    border-radius:28px;
+    box-shadow:var(--shadow);
+    padding:36px 28px 30px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .cup{
+    position:relative;
+    width:300px;
+    height:300px;
+    margin-bottom:8px;
+  }
+
+  .straw{
+    position:absolute;
+    top:-34px;
+    left:50%;
+    transform:translateX(-50%) rotate(-8deg);
+    width:14px;
+    height:52px;
+    background: repeating-linear-gradient(180deg, var(--strawberry) 0 10px, #fff 10px 20px);
+    border-radius:7px;
+    box-shadow: 0 2px 4px rgba(59,42,34,0.2);
+    z-index:3;
+  }
+
+  .pointer{
+    position:absolute;
+    top:-6px;
+    left:50%;
+    transform:translateX(-50%);
+    width:0; height:0;
+    border-left:14px solid transparent;
+    border-right:14px solid transparent;
+    border-top:22px solid var(--ink);
+    z-index:2;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.15));
+  }
+
+  #wheel{
+    border-radius:50%;
+    display:block;
+    border: 6px solid var(--cream-2);
+    box-shadow: 0 0 0 3px var(--line), inset 0 0 30px rgba(59,42,34,0.08);
+  }
+
+  .hub{
+    position:absolute;
+    top:50%; left:50%;
+    width:54px; height:54px;
+    background:var(--card);
+    border:3px solid var(--ink);
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+    z-index:2;
+  }
+
+  .controls{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:14px;
+    margin-top:14px;
+  }
+
+  button{
+    font-family:'Nunito Sans', sans-serif;
+    cursor:pointer;
+    border:none;
+  }
+
+  .spin-btn{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:18px;
+    color:#fff;
+    background: var(--brownsugar);
+    padding:14px 40px;
+    border-radius:999px;
+    box-shadow: 0 6px 0 #8f6438;
+    transition: transform 0.08s ease;
+    letter-spacing:0.02em;
+  }
+  .spin-btn:active{ transform: translateY(4px); box-shadow: 0 2px 0 #8f6438; }
+  .spin-btn.stopping{ background: var(--strawberry); box-shadow: 0 6px 0 #b96e73; }
+  .spin-btn.stopping:active{ box-shadow: 0 2px 0 #b96e73; }
+
+  .result{
+    min-height:34px;
+    font-family:'Baloo 2', sans-serif;
+    font-size:22px;
+    font-weight:700;
+    color:var(--ink);
+    text-align:center;
+  }
+  .result .highlight{ color:var(--brownsugar); }
+
+  .panel{
+    background:var(--card);
+    border-radius:28px;
+    box-shadow:var(--shadow);
+    padding:30px 30px 26px;
+  }
+
+  .panel h2{
+    font-family:'Baloo 2', sans-serif;
+    font-size:20px;
+    font-weight:700;
+    margin:0 0 4px;
+  }
+  .panel .sub{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:0 0 20px;
+  }
+
+  .add-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+  }
+
+  .add-row input{
+    flex:1;
+    height:44px;
+    border-radius:14px;
+    border:1.5px solid var(--line);
+    background:var(--cream-2);
+    padding:0 16px;
+    font-size:15px;
+    font-family:'Nunito Sans', sans-serif;
+    color:var(--ink);
+    outline:none;
+  }
+  .add-row input:focus{ border-color:var(--brownsugar); }
+
+  .add-row button{
+    height:44px;
+    padding:0 20px;
+    border-radius:14px;
+    background:var(--matcha);
+    color:#fff;
+    font-weight:700;
+    font-size:15px;
+  }
+
+  .list{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    max-height:360px;
+    overflow-y:auto;
+    padding-right:4px;
+  }
+
+  .item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px 14px;
+    border-radius:14px;
+    background:var(--cream-2);
+    border:1px solid var(--line);
+  }
+
+  .dot{
+    width:16px; height:16px;
+    border-radius:50%;
+    flex-shrink:0;
+    border:2px solid rgba(255,255,255,0.7);
+  }
+
+  .item span.name{
+    flex:1;
+    font-size:15px;
+    font-weight:600;
+  }
+
+  .item button{
+    background:transparent;
+    color:var(--ink-soft);
+    font-size:13px;
+    padding:6px 10px;
+    border-radius:10px;
+  }
+  .item button:hover{ background:rgba(59,42,34,0.08); color:var(--ink); }
+
+  .empty-hint{
+    font-size:14px;
+    color:var(--ink-soft);
+    text-align:center;
+    padding:20px 0;
+  }
+
+  .share-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:8px;
+  }
+  .share-row input{
+    flex:1;
+    height:40px;
+    border-radius:12px;
+    border:1.5px solid var(--line);
+    background:var(--cream-2);
+    padding:0 14px;
+    font-size:13px;
+    font-family:'Nunito Sans', sans-serif;
+    color:var(--ink-soft);
+    outline:none;
+  }
+  .share-row button{
+    height:40px;
+    padding:0 16px;
+    border-radius:12px;
+    background:var(--taro);
+    color:#fff;
+    font-weight:700;
+    font-size:13px;
+    white-space:nowrap;
+  }
+  .share-hint{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin:0 0 18px;
+  }
+
+  footer{
+    text-align:center;
+    margin-top:36px;
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="eyebrow">今日签到</div>
+    <h1>今天喝什么<span>奶茶</span>?</h1>
+    <p>加入你的心水品牌,转一转交给运气决定</p>
+  </header>
+
+  <div class="layout">
+
+    <div class="wheel-card">
+      <div class="cup">
+        <div class="straw"></div>
+        <div class="pointer"></div>
+        <canvas id="wheel" width="300" height="300"></canvas>
+        <div class="hub">🧋</div>
+      </div>
+
+      <div class="controls">
+        <button class="spin-btn" id="spinBtn">开始转动</button>
+        <div class="result" id="result"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>奶茶清单</h2>
+      <p class="sub">添加想喝的品牌,越多选择越好玩 · 大家共同编辑</p>
+
+      <div class="share-row" id="shareRow" style="display:none;">
+        <input id="shareLink" type="text" readonly />
+        <button id="copyBtn">复制链接</button>
+      </div>
+      <p class="share-hint" id="shareHint"></p>
+
+      <div class="add-row">
+        <input id="newItem" type="text" placeholder="例如:蜜雪冰城" />
+        <button id="addBtn">添加</button>
+      </div>
+
+      <div class="list" id="list"></div>
+    </div>
+
+  </div>
+
+  <footer>点击"开始转动"让转盘转起来,再次点击即可停下 · 停在哪格就喝哪家</footer>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAj35fRxGKyaRRoT6ynFoeg4_tzJwnYKVA",
+  authDomain: "drinkkkk.firebaseapp.com",
+  databaseURL: "https://drinkkkk-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "drinkkkk",
+  storageBucket: "drinkkkk.firebasestorage.app",
+  messagingSenderId: "1015719436954",
+  appId: "1:1015719436954:web:d897ffd3e7cc49cda6f523"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getDatabase(firebaseApp);
+const itemsRef = ref(db, 'milkTeaWheel/items');
+
+const palette = ['#A78BC9','#8FAE6B','#E39AA0','#E3B94E','#CDA97D','#7FB0C4','#D98E63','#B497D6'];
+const defaultItems = ['蜜雪冰城','喜茶','奈雪的茶','霸王茶姬','coco都可','茶百道'];
+let items = [...defaultItems];
+let saving = false;
+let sharingReady = false;
+
+function showShareLink(){
+  const row = document.getElementById('shareRow');
+  const hint = document.getElementById('shareHint');
+  const input = document.getElementById('shareLink');
+  if(!sharingReady){
+    hint.textContent = '共享连接暂时不可用,当前清单只保存在你本机。';
+    return;
+  }
+  input.value = window.location.href;
+  row.style.display = 'flex';
+  hint.textContent = '把这个链接发给朋友,大家打开就能实时共用这份清单。';
+}
+
+async function initSharing(){
+  try{
+    const snapshot = await get(itemsRef);
+    if(snapshot.exists()){
+      const parsed = snapshot.val();
+      if(Array.isArray(parsed) && parsed.length > 0) items = parsed;
+    } else {
+      await set(itemsRef, items);
+    }
+    sharingReady = true;
+
+    // 实时监听:其他人一改,这里立刻同步,不用轮询
+    onValue(itemsRef, (snap)=>{
+      if(saving) return;
+      const val = snap.val();
+      if(Array.isArray(val) && JSON.stringify(val) !== JSON.stringify(items)){
+        items = val;
+        renderList();
+      }
+    });
+  } catch(e){
+    sharingReady = false;
+  }
+  showShareLink();
+  renderList();
+}
+
+async function saveItems(){
+  if(!sharingReady) return;
+  try{
+    await set(itemsRef, items);
+  } catch(e){
+    // 保存失败时静默跳过,不打扰用户
+  }
+}
+
+const canvas = document.getElementById('wheel');
+const ctx = canvas.getContext('2d');
+const size = 300, cx = size/2, cy = size/2, r = size/2 - 4;
+
+let rotation = 0;
+let spinning = false;
+let rafId = null;
+let speed = 0;
+const MAX_SPEED = 14;
+const ACCEL = 0.6;
+let phase = 'idle';
+let decelStart = 0;
+
+function draw(){
+  ctx.clearRect(0,0,size,size);
+  const n = items.length;
+  if(n === 0){
+    ctx.fillStyle = '#FBF5EA';
+    ctx.beginPath();
+    ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.fill();
+    return;
+  }
+  const slice = (Math.PI*2)/n;
+  for(let i=0;i<n;i++){
+    const start = i*slice;
+    const end = start+slice;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,start,end);
+    ctx.closePath();
+    ctx.fillStyle = palette[i % palette.length];
+    ctx.fill();
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(start+slice/2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(255,255,255,0.95)';
+    ctx.font = '600 15px "Nunito Sans", sans-serif';
+    let label = items[i];
+    if(label.length > 8) label = label.slice(0,7)+'…';
+    ctx.fillText(label, r-16, 5);
+    ctx.restore();
+  }
+}
+
+function renderList(){
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+  if(items.length === 0){
+    list.innerHTML = '<div class="empty-hint">还没有奶茶,添加一个开始吧</div>';
+    draw();
+    return;
+  }
+  items.forEach((name,i)=>{
+    const row = document.createElement('div');
+    row.className = 'item';
+    const dot = document.createElement('span');
+    dot.className = 'dot';
+    dot.style.background = palette[i % palette.length];
+    const label = document.createElement('span');
+    label.className = 'name';
+    label.textContent = name;
+    const del = document.createElement('button');
+    del.textContent = '删除';
+    del.onclick = async ()=>{
+      items.splice(i,1);
+      renderList();
+      saving = true;
+      await saveItems();
+      saving = false;
+    };
+    row.appendChild(dot); row.appendChild(label); row.appendChild(del);
+    list.appendChild(row);
+  });
+  draw();
+}
+
+document.getElementById('copyBtn').onclick = async ()=>{
+  const input = document.getElementById('shareLink');
+  input.select();
+  try{
+    await navigator.clipboard.writeText(input.value);
+    const btn = document.getElementById('copyBtn');
+    const original = btn.textContent;
+    btn.textContent = '已复制';
+    setTimeout(()=>{ btn.textContent = original; }, 1500);
+  } catch(e){
+    // 复制失败时,用户仍可以手动从输入框选中复制
+  }
+};
+
+document.getElementById('addBtn').onclick = async ()=>{
+  const input = document.getElementById('newItem');
+  const val = input.value.trim();
+  if(val){
+    items.push(val);
+    input.value='';
+    renderList();
+    saving = true;
+    await saveItems();
+    saving = false;
+  }
+};
+document.getElementById('newItem').addEventListener('keydown', e=>{
+  if(e.key==='Enter') document.getElementById('addBtn').click();
+});
+
+function animate(){
+  if(phase === 'accelerating'){
+    speed = Math.min(MAX_SPEED, speed + ACCEL);
+    if(speed >= MAX_SPEED) phase = 'cruising';
+  } else if(phase === 'decelerating'){
+    const elapsed = performance.now() - decelStart;
+    const duration = 2600;
+    const t = Math.min(1, elapsed/duration);
+    const ease = 1 - Math.pow(1-t, 3);
+    speed = MAX_SPEED * (1-ease);
+    if(t >= 1){
+      speed = 0;
+      phase = 'idle';
+      finishSpin();
+      return;
+    }
+  }
+  rotation = (rotation + speed) % 360;
+  canvas.style.transform = `rotate(${rotation}deg)`;
+  rafId = requestAnimationFrame(animate);
+}
+
+function finishSpin(){
+  spinning = false;
+  const btn = document.getElementById('spinBtn');
+  btn.textContent = '开始转动';
+  btn.classList.remove('stopping');
+  const n = items.length;
+  if(n === 0) return;
+  const slice = 360/n;
+  const normalized = ((360 - (rotation % 360)) + 90) % 360;
+  const idx = Math.floor(normalized / slice) % n;
+  document.getElementById('result').innerHTML = '今天喝: <span class="highlight">' + items[idx] + '</span>';
+}
+
+document.getElementById('spinBtn').onclick = ()=>{
+  const btn = document.getElementById('spinBtn');
+  if(items.length < 2){
+    document.getElementById('result').textContent = '至少添加两个奶茶品牌哦';
+    return;
+  }
+  if(!spinning){
+    spinning = true;
+    phase = 'accelerating';
+    speed = 0;
+    document.getElementById('result').textContent = '';
+    btn.textContent = '停下!';
+    btn.classList.add('stopping');
+    cancelAnimationFrame(rafId);
+    animate();
+  } else if(phase === 'cruising' || phase === 'accelerating'){
+    phase = 'decelerating';
+    decelStart = performance.now();
+    btn.textContent = '转动中…';
+  }
+};
+
+initSharing();
+</script>
+</body>
+</html>
